@@ -4,20 +4,24 @@ import { useSignIn } from "@/src/hooks/auth/use-sign";
 import { useSignFormResolver } from "@/src/hooks/resolvers/login-resolver";
 import { SignInSchemaType } from "@/src/schemas/sign-in";
 import { Button, Input } from "@nextui-org/react";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { SubmitHandler } from "react-hook-form";
 import { toast } from "sonner";
 
 const LoginForm = () => {
 	const [loading, setLoading] = useState(false);
+	const router = useRouter();
 	const { handleSubmit, register, errors } = useSignFormResolver();
 
 	const onSubmit: SubmitHandler<SignInSchemaType> = async (formData) => {
 		setLoading(true);
 		toast.promise(useSignIn(formData), {
 			loading: "Iniciando sesión...",
-			success: () => {
+			success: ({ user }) => {
 				setLoading(false);
+				router.push(`/profile/${user.id}`);
+				router.refresh();
 				return "Sesión iniciada correctamente";
 			},
 			error: (err) => {
